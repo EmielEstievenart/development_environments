@@ -1,0 +1,87 @@
+{
+    "workbench.colorTheme": "Visual Studio Light - C++",
+    "platformio-ide.autoOpenPlatformIOIniFile": false,
+    "auto-build.defaultEnv.name": "STM32F103RE_creality",
+    "command-runner.terminal.name": "runCommand",
+    "command-runner.terminal.autoClear": true,
+    "command-runner.terminal.autoFocus": true,
+    "command-runner.commands": {
+        "gersemi": "gersemi -l 200 -i  ${file}",
+        "echo file": "echo ${file}"
+    },
+    "cmake.pinnedCommands": [
+        "workbench.action.tasks.configureTaskRunner",
+        "workbench.action.tasks.runTask"
+    ],
+    "cmake.useCMakePresets": "always",
+    "cmake.configureArgs": [
+        "-DCMAKE_PREFIX_PATH=C:\\Users\\emiel\\Documents\\Development\\SDL3-devel-3.1.6-VC\\SDL3-3.1.6"
+    ],
+    // "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "clangd.checkUpdates": true,
+    "clangd.path": "c:\\Users\\emiel\\AppData\\Roaming\\Code\\User\\globalStorage\\llvm-vs-code-extensions.vscode-clangd\\install\\21.1.0\\clangd_21.1.0\\bin\\clangd.exe",
+    "C_Cpp.clang_format_fallbackStyle": "LLVM",
+    "cmake.showOptionsMovedNotification": false,
+    "editor.minimap.enabled": false,
+    "workbench.settings.applyToAllProfiles": [
+        "editor.fontFamily"
+    ],
+    "editor.fontSize": 20,
+    "terminal.integrated.fontFamily": "monospace",
+    "editor.fontFamily": "\"JetBrains Mono\"",
+    "editor.fontLigatures": true,
+    "workbench.sideBar.location": "right",
+    "git.openRepositoryInParentFolders": "never",
+    "cmake.showConfigureWithDebuggerNotification": false,
+    "workbench.activityBar.location": "top",
+    "cmake.automaticReconfigure": false,
+    "cmake.configureOnOpen": false,
+    "cmake.configureOnEdit": false,
+    "workbench.iconTheme": "vscode-icons",
+    "[cpp]": {
+        "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "C_Cpp.clang_format_path": "C:\\Program Files\\LLVM\\bin\\clang-format.exe",
+    "accessibility.voice.speechTimeout": 5000,
+    "continue.enableConsole": true,
+    "editor.formatOnSave": true,
+    "yaml.schemas": {
+        "file:///c%3A/Users/emiel/.vscode/extensions/continue.continue-1.2.7-win32-x64/config-yaml-schema.json": [
+            ".continue/**/*.yaml"
+        ]
+    },
+    "continue.enableTabAutocomplete": false,
+    "continue.showInlineTip": false,
+    "[dockercompose]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.autoIndent": "advanced",
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "[github-actions-workflow]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    "continue.enableNextEdit": false,
+    "chat.tools.terminal.autoApprove": {
+        "Set-Location": true
+    },
+    "github.copilot.advanced": {},
+    "github.copilot.nextEditSuggestions.enabled": true,
+    "github.copilot.editor.enableCodeActions": true,
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false,
+        "instructions": true,
+        "cpp": false
+    },
+    "github.copilot.editor.enableAutoCompletions": false,
+    "editor.hover.delay": 1000,
+    "cmake.ctest.debugLaunchTarget": "Test selected",
+    "workbench.editor.enablePreviewFromCodeNavigation": true,
+    "workbench.editor.enablePreviewFromQuickOpen": true,
+    "editor.inlayHints.enabled": "onUnlessPressed",
+    "chat.editor.fontSize": 16
+}
