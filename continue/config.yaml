@@ -1,0 +1,131 @@
+name: OpenRouter
+version: 1.0.0
+schema: v1
+models:
+  - name: nomic-embed-text:latest
+    provider: ollama
+    model: nomic-embed-text:latest
+    roles:
+      - embed
+  - name: openai/gpt-5
+    model: openai/gpt-5
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    requestOptions:
+      extraBodyProperties:
+        think: false
+    roles:
+      - chat
+      - edit
+  - name: openai/gpt-5-codex
+    model: openai/gpt-5-codex
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    requestOptions:
+      extraBodyProperties:
+        think: false
+    roles:
+      - chat
+      - edit
+  - name: anthropic/claude-sonnet-4.5
+    model: anthropic/claude-sonnet-4.5
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    roles:
+      - chat
+      - edit
+  - name: openai/gpt-5-mini
+    model: openai/gpt-5-mini
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    requestOptions:
+      extraBodyProperties:
+        think: false
+    roles:
+      - chat
+      - edit
+      - autocomplete
+  - name: x-ai/grok-code-fast-1
+    model: x-ai/grok-code-fast-1
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    requestOptions:
+      extraBodyProperties:
+        think: false
+    roles:
+      - chat
+      - edit
+  - name: moonshotai/kimi-k2
+    model: moonshotai/kimi-k2
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    requestOptions:
+      extraBodyProperties:
+        think: false
+    roles:
+      - chat
+      - edit
+    capabilities:
+      - tool_use
+  - name: inception/mercury-coder
+    model: inception/mercury-coder
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    requestOptions:
+      extraBodyProperties:
+        think: false
+    roles:
+      - chat
+      - edit
+      - apply
+      - autocomplete
+  - name: morph/morph-v3-fast
+    model: morph/morph-v3-fast
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    requestOptions:
+      extraBodyProperties:
+        think: false
+    roles:
+      - apply
+  - name: qwen/qwen3-coder:baseten
+    model: qwen/qwen3-coder:baseten
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    requestOptions:
+      extraBodyProperties:
+        provider:
+          order:
+            - baseten
+          allow_fallbacks: false
+  - name: mistralai/codestral-2508
+    model: mistralai/codestral-2508
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    roles:
+      - autocomplete
+  - name: qwen/qwen-2.5-coder-32b-instruct
+    model: qwen/qwen-2.5-coder-32b-instruct
+    provider: openrouter
+    apiBase: https://openrouter.ai/api/v1
+    apiKey: REPLACE_ME
+    roles:
+      - autocomplete
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase
