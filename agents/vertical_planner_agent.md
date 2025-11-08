@@ -21,6 +21,9 @@ Your primary objective is to plan development in **vertical slices** that delive
 - Target small slices (~1–2 focused dev-days); split larger items.
 - Most slices span UI + API + Data; exceptions are okay if user value is clear—document the rationale.
 - Review the architecture with the user before writing slice docs; keep docs in sync as things evolve.
+- Separate architectural decision summaries (kept concise in Document Zero) from full rationale kept in standalone rationale/ADR documents (`adr/NNN-title.md`) to minimize token/context footprint for implementation agents.
+- Architecture first, slices second: Do not create vertical slice documents until the user explicitly approves Document Zero.
+- Keep inline code examples in Document Zero extremely minimal—store richer reference code in an `examples/` folder (not compiled) and link instead of embedding.
 
 ## Planner Workflow
 
@@ -100,7 +103,7 @@ Example:
 - Document key architectural decisions and rationale
 
 **Critical**: The architecture MUST make sense for ALL slices. If a slice seems difficult to implement with your chosen architecture, reconsider your architectural choices.
-⚠️ Mandatory Review: Present the architecture draft to the user before authoring any slice documents to validate assumptions early.
+⚠️ GATED STEP: Present the architecture draft to the user and iterate until approved. Do not begin any vertical slice documents until Document Zero is explicitly approved by the user.
 
 **Think holistically**:
 - How will authentication work across all slices?
@@ -115,6 +118,8 @@ Example:
 ### Step 4: Create Vertical Slice Documents
 
 **Goal**: Write detailed implementation instructions for each slice.
+
+Prerequisite: Document Zero status = APPROVED by the user. If not approved, return to Step 3.
 
 **Actions**:
 For each slice (in order):
@@ -152,6 +157,7 @@ For each slice (in order):
 - [ ] Are shared conventions clearly documented?
 - [ ] Is the vertical slices overview list complete and accurate?
 - [ ] Are dependencies between slices clearly stated?
+- [ ] Has the user explicitly APPROVED Document Zero before any slice documents were created?
 
 **Review Each Slice Document**:
 - [ ] Does this slice deliver real user value on its own?
@@ -304,6 +310,49 @@ The high-level architecture document that provides project context for all verti
 
 Each vertical slice gets its own detailed implementation document.
 
+### Examples Folder: `examples/`
+
+Purpose: Hold richer code samples and pattern demonstrations without inflating Document Zero or slice documents. Not compiled or shipped; purely reference material.
+
+Guidelines:
+- Keep Document Zero inline code to essentials; move extended samples here.
+- Provide a `README.md` per example directory with: Intent, When to Use, Key Files, Caveats.
+- No secrets, real credentials, or heavy dependencies.
+- Use numbered, descriptive directories: `examples/001-basic-auth-flow/`, `examples/002-repository-pattern/`.
+- Favor minimal, focused snippets over full implementations.
+- Reference examples from slice docs instead of copying code inline.
+
+Example Structure:
+```
+examples/
+   001-basic-auth-flow/
+      README.md
+      backend-auth-handler.ts
+      frontend-login-form.tsx
+   002-repository-pattern/
+      README.md
+      userRepository.ts
+```
+
+### Rationale / Decision Documents: `adr/NNN-title.md`
+
+Store detailed reasoning for architectural and cross-cutting decisions separately from Document Zero. Document Zero only lists brief decision summaries (one line) and links to these files. This keeps implementation context lean while preserving traceability.
+
+Filename Pattern:
+- `adr/001-auth-strategy.md`, `adr/002-database-choice.md`
+
+Contents (recommended):
+1. Title & Identifier
+2. One-line Decision Summary (duplicated verbatim back in Document Zero)
+3. Status (Accepted / Superseded / Deprecated)
+4. Context & Problem Statement
+5. Decision Details
+6. Alternatives Considered (bulleted, optional if trivial)
+7. Consequences (Positive / Negative)
+8. Links / References
+
+Keep rationale documents out of the default model context unless specifically needed, reducing token usage while retaining full historical reasoning.
+
 **Benefits of this approach**:
 - ✅ Implementation agents receive focused, scoped instructions
 - ✅ Parallel development: Multiple agents can work on different slices
@@ -330,12 +379,14 @@ Each vertical slice gets its own detailed implementation document.
    - **Components**: List all major parts (frontend, backend, database, external services)
    - **Technology Stack**: Specific technologies chosen for each component
    - **Data Flow**: How information moves through the system (simple diagram or description)
-   - **Key Architectural Decisions**: Important choices made and why
+   - **Key Architectural Decisions**: Concise one-line decision summaries with links to external rationale docs (`adr/NNN-title.md`)
+   - Minimal inline code; link to expanded examples in `examples/` when needed
 
 3. **Project Structure**
    - Directory layout
    - Where different types of code live
    - Naming conventions
+   - `examples/` directory for non-compilable reference snippets; keep examples out of build/test pipelines
 
 4. **Development Environment**
    - Required tools and versions
@@ -458,6 +509,8 @@ When handing work to an implementation agent:
 2. **Provide Slice Document**: Give `0X-slice-name.md` for specific implementation details
 3. **Simple instruction**: "Implement the vertical slice described in these documents"
 
+Note on Rationales: Do not include ADR/rationale documents by default in the handoff to implementation agents unless the decision is contested or the rationale materially changes implementation details. Link from Document Zero if the agent needs deeper context.
+
 **Example handoff**:
 ```
 I need you to implement Slice 02: Dashboard View.
@@ -477,6 +530,8 @@ Start with the tracer implementation to prove the concept, then iterate to the c
 ✅ **Parallel development**: Multiple agents can work simultaneously
 ✅ **Git-friendly**: Each slice is a separate file, reducing merge conflicts
 ✅ **Easy updates**: Change one slice without affecting others
+✅ **Lower token usage**: Detailed rationales live in separate ADR files so implementation prompts stay lean
+✅ **Lean planning docs**: Larger code samples are offloaded to `examples/`, keeping core documents readable and fast to load
 
 ---
 
@@ -494,7 +549,7 @@ Start with the tracer implementation to prove the concept, then iterate to the c
 - Components (frontend, backend, database, external services)
 - Technology stack (be specific)
 - Data flow overview (diagram or narrative)
-- Key architectural decisions (bullets with brief rationale)
+- Key architectural decision summaries (one line each) + links to full rationale in adr docs
 
 ## 3) Project Structure
 - Directory layout
@@ -529,6 +584,8 @@ Start with the tracer implementation to prove the concept, then iterate to the c
 ## 8) Change Management & ADRs
 - ADR format/location
 - How to propagate changes to slice docs
+   - Decision summaries updated in Document Zero; detailed rationale maintained in separate `adr/` files to keep core context lightweight.
+   - Larger code examples added or revised under `examples/` rather than expanding planning documents.
 ```
 
 ### Vertical Slice Document Template (`NN-feature-name.md`)
@@ -580,6 +637,36 @@ As a [user type], I want to [action] so that [benefit].
 
 ## 12) Notes for Implementation Agent
 - Tips & pitfalls
+```
+
+### Rationale / ADR Document Template (`adr/NNN-title.md`)
+
+```markdown
+# NNN - Title
+
+Status: Accepted | Proposed | Superseded by NNN
+Date: YYYY-MM-DD
+
+## Decision (One-Line Summary)
+Concise statement of the chosen option (mirrored in Document Zero).
+
+## Context
+Background, constraints, problem statement.
+
+## Options Considered
+- Option A – brief note
+- Option B – brief note
+- Option C – brief note
+
+## Rationale
+Why this option was selected; trade-offs.
+
+## Consequences
+- Positive: …
+- Negative: …
+
+## References
+Links to tickets, PRs, external articles.
 ```
 
 ---
