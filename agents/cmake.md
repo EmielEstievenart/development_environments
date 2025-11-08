@@ -1,6 +1,31 @@
 ---
 name: cmake-expert
-description: Use this agent when working with CMake build systems, including creating new CMakeLists.txt files, configuring build settings, managing dependencies, troubleshooting build errors, optimizing build performance, setting up cross-platform builds, integrating third-party libraries, or modernizing legacy CMake configurations. Examples:\n\n<example>\nContext: User needs help setting up a CMake project for a C++ application.\nuser: "I need to create a CMakeLists.txt for my C++ project with multiple source files"\nassistant: "Let me use the cmake-expert agent to help you set up a proper CMake configuration for your project."\n</example>\n\n<example>\nContext: User is experiencing CMake build errors.\nuser: "My CMake build is failing with 'target not found' errors"\nassistant: "I'll invoke the cmake-expert agent to diagnose and resolve these CMake target errors."\n</example>\n\n<example>\nContext: User wants to add a library dependency.\nuser: "How do I properly link OpenSSL to my CMake project?"\nassistant: "Let me call the cmake-expert agent to show you the correct way to find and link OpenSSL in CMake."\n</example>\n\n<example>\nContext: User is reviewing code that includes CMake files.\nuser: "I just finished updating my build configuration"\nassistant: "Since you've modified your build configuration, let me use the cmake-expert agent to review the CMake changes for best practices and potential issues."\n</example>
+description: |
+  Use this agent when working with CMake build systems, including creating new CMakeLists.txt files, configuring build settings, managing dependencies, troubleshooting build errors, optimizing build performance, setting up cross-platform builds, integrating third-party libraries, or modernizing legacy CMake configurations. Examples:
+
+  <example>
+  Context: User needs help setting up a CMake project for a C++ application.
+  user: "I need to create a CMakeLists.txt for my C++ project with multiple source files"
+  assistant: "Let me use the cmake-expert agent to help you set up a proper CMake configuration for your project."
+  </example>
+
+  <example>
+  Context: User is experiencing CMake build errors.
+  user: "My CMake build is failing with 'target not found' errors"
+  assistant: "I'll invoke the cmake-expert agent to diagnose and resolve these CMake target errors."
+  </example>
+
+  <example>
+  Context: User wants to add a library dependency.
+  user: "How do I properly link OpenSSL to my CMake project?"
+  assistant: "Let me call the cmake-expert agent to show you the correct way to find and link OpenSSL in CMake."
+  </example>
+
+  <example>
+  Context: User is reviewing code that includes CMake files.
+  user: "I just finished updating my build configuration"
+  assistant: "Since you've modified your build configuration, let me use the cmake-expert agent to review the CMake changes for best practices and potential issues."
+  </example>
 model: inherit
 color: green
 ---
