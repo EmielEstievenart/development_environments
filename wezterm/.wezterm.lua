@@ -1,10 +1,7 @@
 local wezterm = require 'wezterm';
 return {
     window_background_opacity = 0.85, -- 85% opaque
-    -- color_scheme = "Dracula",
-    -- colors = {
-    --   background = "#0c0e14",
-    -- },
+    color_scheme = "Solarized (light) (terminal.sexy)",
     font_size = 10.0,
     -- dpi = 192.0,
     leader = {
@@ -12,7 +9,7 @@ return {
         mods = "CTRL"
     },
 
-    default_prog = {"powershell.exe", "-NoLogo"},
+    default_prog = {"pwsh.exe", "-NoLogo"},
 
     keys = {{
         key = "b",
@@ -201,6 +198,12 @@ return {
         key = "RightArrow",
         mods = "SHIFT",
         action = wezterm.action.MoveTabRelative(1)
+    }, {
+        key = "Enter",
+        mods = "SHIFT",
+        action = wezterm.action {
+            SendString = "\x1b\r"
+        }
     } -- (your other key bindings)
     }
 }
