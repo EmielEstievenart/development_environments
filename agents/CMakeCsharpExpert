@@ -97,6 +97,61 @@ Note: `csharp_set_xaml_cs_properties` usually handles the dependency, but you ma
 set_property(SOURCE MainWindow.xaml PROPERTY VS_XAML_TYPE "Page")
 ```
 
+## Handling Non-Compiled .cs Files (Templates, Snippets)
+
+CMake hardcodes all `.cs` files as `<Compile>` items in the generated `.csproj`. This is a fundamental limitation—there is no property that can change this behavior.
+
+### The Problem
+When you have `.cs` files that should be treated as content (e.g., code templates, snippets for code generation), CMake will compile them regardless of any properties you set.
+
+### What Doesn't Work
+| Attempted Solution | Result |
+| :--- | :--- |
+| `VS_TOOL_OVERRIDE "Content"` | Ignored for .cs files (CMake < 3.31) |
+| `VS_SETTINGS "ExcludedFromBuild=true"` | Generates correct XML, but MSBuild still compiles `<Compile>` items |
+| `HEADER_FILE_ONLY TRUE` | Creates `<ClInclude>` (wrong item type for C#) |
+
+### The Solution: Exclude from Target, Copy at Build Time
+
+Don't add template `.cs` files to the target. Use `add_custom_command` with `POST_BUILD` to copy them to the output directory:
+
+```cmake
+# Template files to copy (not compiled)
+set(TEMPLATE_FILES
+    templates/ClassTemplate.cs
+    templates/ViewModelTemplate.cs
+)
+
+# Don't add TEMPLATE_FILES to add_executable()
+add_executable(MyApp
+    App.xaml
+    App.xaml.cs
+    MainWindow.xaml
+    MainWindow.xaml.cs
+    # NO template files here
+)
+
+# Copy template files to output directory
+foreach(TEMPLATE_FILE ${TEMPLATE_FILES})
+    get_filename_component(TEMPLATE_NAME "${TEMPLATE_FILE}" NAME)
+    get_filename_component(TEMPLATE_SUBDIR "${TEMPLATE_FILE}" DIRECTORY)
+    add_custom_command(TARGET MyApp POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "$<TARGET_FILE_DIR:MyApp>/${TEMPLATE_SUBDIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/${TEMPLATE_FILE}"
+            "$<TARGET_FILE_DIR:MyApp>/${TEMPLATE_SUBDIR}/${TEMPLATE_NAME}"
+        COMMENT "Copying template: ${TEMPLATE_SUBDIR}/${TEMPLATE_NAME}"
+    )
+endforeach()
+```
+
+### Trade-off
+Files won't be visible in Visual Studio Solution Explorer, but this is the cleanest approach. Alternative solutions (like `Directory.Build.targets` to post-process MSBuild items) add complexity without significant benefit.
+
+### Key Insight
+CMake's C# support cannot change item types for `.cs` files. The only reliable way to prevent compilation is to **not add them to the target at all**.
+
 ## Resource Management & Designers
 
 Distinguish clearly between **Build Actions** and **Custom Tools**.
@@ -188,6 +243,7 @@ add_test(NAME MyTests COMMAND MyTests)
 | Issue | Cause | Fix |
 | :--- | :--- | :--- |
 | **"Duplicate Compile Items"** | .NET SDK and CMake both trying to include files. | Set `VS_GLOBAL_EnableDefaultCompileItems` to `false`. |
+| **Template .cs files being compiled** | CMake hardcodes all .cs as `<Compile>`. | Don't add to target; use `add_custom_command` POST_BUILD to copy. |
 | **XAML code-behind separation** | Missing `DependentUpon` metadata. | Use `csharp_set_xaml_cs_properties()`. **Manual properties usually fail.** |
 | **Main method not found** | App.xaml is set to `Page`, not `ApplicationDefinition`. | `set_property(SOURCE App.xaml PROPERTY VS_XAML_TYPE "ApplicationDefinition")` |
 | **Images not showing** | Build Action is `None` or `Content`. | Use `set_property(... PROPERTY VS_TOOL_OVERRIDE "Resource")`. |
@@ -201,3 +257,4 @@ add_test(NAME MyTests COMMAND MyTests)
 3.  **Use Property Injection**: Prefer `VS_CSHARP_<tag>` over `CMAKE_CSharp_FLAGS`.
 4.  **Canonicalize Paths**: Never try to manually set `VS_CSHARP_DependentUpon` with relative strings; dependent file nesting will fail. Use the helper functions.
 5.  **Windows Suffix**: For WPF/WinForms, ensure the TFM ends in `-windows` (e.g., `net8.0-windows`).
+6.  **Non-Compiled .cs Files**: Never add template/content `.cs` files to the target. CMake cannot change item types for `.cs` files—exclude them and copy with `add_custom_command`.
