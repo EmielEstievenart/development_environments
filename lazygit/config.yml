@@ -1,0 +1,16 @@
+gui:
+  language: 'en' # one of 'auto' | 'en' | 'zh-CN' | 'zh-TW' | 'pl' | 'nl' | 'ja' | 'ko' | 'ru'
+customCommands:
+  - key: '<c-d>'
+    context: 'commitFiles'
+    command: 'git difftool {{.SelectedSubCommit.Sha}}~ {{.SelectedSubCommit.Sha}} -y -- {{.SelectedCommitFile.Name}}'
+    description: 'Show changes with difftool'
+  - key: '<c-d>'
+    context: 'files'
+    command: 'git difftool HEAD -y -- {{.SelectedFile.Name}}'
+    description: 'Show uncommited changes with difftool'
+git:
+  autoFetch: false
+  autoRefresh: true
+os:
+  edit: "code --wait {{filename}}"
