@@ -1,33 +1,6 @@
 ---
-name: cmake-expert
-description: |
-  Use this agent when working with CMake build systems, including creating new CMakeLists.txt files, configuring build settings, managing dependencies, troubleshooting build errors, optimizing build performance, setting up cross-platform builds, integrating third-party libraries, or modernizing legacy CMake configurations. Examples:
-
-  <example>
-  Context: User needs help setting up a CMake project for a C++ application.
-  user: "I need to create a CMakeLists.txt for my C++ project with multiple source files"
-  assistant: "Let me use the cmake-expert agent to help you set up a proper CMake configuration for your project."
-  </example>
-
-  <example>
-  Context: User is experiencing CMake build errors.
-  user: "My CMake build is failing with 'target not found' errors"
-  assistant: "I'll invoke the cmake-expert agent to diagnose and resolve these CMake target errors."
-  </example>
-
-  <example>
-  Context: User wants to add a library dependency.
-  user: "How do I properly link OpenSSL to my CMake project?"
-  assistant: "Let me call the cmake-expert agent to show you the correct way to find and link OpenSSL in CMake."
-  </example>
-
-  <example>
-  Context: User is reviewing code that includes CMake files.
-  user: "I just finished updating my build configuration"
-  assistant: "Since you've modified your build configuration, let me use the cmake-expert agent to review the CMake changes for best practices and potential issues."
-  </example>
-model: inherit
-color: green
+description: 'Use this agent when working with CMake build systems, including creating new CMakeLists.txt files, configuring build settings, managing dependencies, troubleshooting build errors, optimizing build performance, setting up cross-platform builds, integrating third-party libraries, or modernizing legacy CMake configurations.'
+tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'todos', 'runSubagent', 'runTests']
 ---
 # CMake Expert Agent
 
@@ -178,6 +151,83 @@ Guide users through:
 - Setting toolchain files in presets
 - Handling compiler-specific flags through targets
 - Managing platform-specific dependencies
+
+### Tooling: `compile_commands.json` on Windows
+When working on Windows with clangd/clang-tidy or other tooling that consumes `compile_commands.json`, ensure the workspace-root `compile_commands.json` exists *and* uses consistent drive-letter casing (prefer lowercase like `c:/...`). This avoids subtle issues where tools treat `C:/...` and `c:/...` as different paths.
+
+Prefer implementing this via a dedicated custom target that:
+- Depends on the generated `${CMAKE_BINARY_DIR}/compile_commands.json`
+- Writes `${CMAKE_SOURCE_DIR}/compile_commands.json`
+- On Windows: normalizes drive letters to lowercase
+
+Recommended pattern (template + configured script, then `cmake -P`):
+
+```cmake
+# Ensure compile commands are generated (prefer setting this in CMakePresets.json)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+    set(_cc_src "${CMAKE_BINARY_DIR}/compile_commands.json")
+    set(_cc_dst "${CMAKE_SOURCE_DIR}/compile_commands.json")
+
+    if(WIN32)
+        # Write a configured script that bakes in source/destination paths.
+        configure_file(
+            ${CMAKE_SOURCE_DIR}/cmake/normalize_compile_commands.cmake.in
+            ${CMAKE_BINARY_DIR}/normalize_compile_commands.cmake
+            @ONLY)
+
+        add_custom_target(
+            copy_compile_commands ALL
+            COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/normalize_compile_commands.cmake
+            BYPRODUCTS ${_cc_dst}
+            DEPENDS ${_cc_src}
+            VERBATIM)
+    else()
+        add_custom_target(
+            copy_compile_commands ALL
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${_cc_src} ${_cc_dst}
+            BYPRODUCTS ${_cc_dst}
+            DEPENDS ${_cc_src}
+            VERBATIM)
+    endif()
+endif()
+```
+
+Template script `cmake/normalize_compile_commands.cmake.in` (based on the provided script; small safety improvements included):
+
+```cmake
+if(NOT EXISTS "@CC_SRC@")
+    message(FATAL_ERROR "compile_commands.json not found at @CC_SRC@")
+endif()
+
+file(READ "@CC_SRC@" _contents)
+
+# Normalize drive letters to lowercase (applies globally)
+foreach(_drive_letter A B C D E F G H I J K L M N O P Q R S T U V W X Y Z)
+    string(TOLOWER "${_drive_letter}" _drive_letter_lower)
+    string(REPLACE "${_drive_letter}:" "${_drive_letter_lower}:" _contents "${_contents}")
+endforeach()
+
+# Ensure destination directory exists
+get_filename_component(_cc_dst_dir "@CC_DST@" DIRECTORY)
+if(NOT _cc_dst_dir STREQUAL "")
+    file(MAKE_DIRECTORY "${_cc_dst_dir}")
+endif()
+
+# Write normalized contents to destination
+file(WRITE "@CC_DST@" "${_contents}")
+message(STATUS "Wrote @CC_DST@")
+```
+
+In `CMakeLists.txt`, pass `CC_SRC`/`CC_DST` for the configured script via:
+
+```cmake
+set(CC_SRC "${CMAKE_BINARY_DIR}/compile_commands.json")
+set(CC_DST "${CMAKE_SOURCE_DIR}/compile_commands.json")
+```
+
+Prefer setting `CMAKE_EXPORT_COMPILE_COMMANDS` in `CMakePresets.json` (cache variable) rather than relying on global state in `CMakeLists.txt`.
 
 ### Testing and Packaging
 - Setting up CTest with test presets
